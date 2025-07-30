@@ -1,0 +1,60 @@
+Transact Wallet Data Base DDL scripts :-
+
+CREATE TABLE `tbl_payment_method` (
+  `c_id` bigint DEFAULT NULL,
+  `c_method` varchar(255) NOT NULL,
+  PRIMARY KEY (`c_method`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+
+CREATE TABLE `tbl_transaction` (
+  `c_id` bigint NOT NULL AUTO_INCREMENT,
+  `c_user_id` bigint DEFAULT NULL,
+  `c_amount` bigint DEFAULT NULL,
+  `c_type` enum('Credit','Debit') DEFAULT NULL,
+  `c_status` enum('Initiated','Approved','Decline','Refunded','Chargeback','Processing','Error','Requested') DEFAULT NULL,
+  `c_create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `c_cpdate_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `c_comments` varchar(200) DEFAULT NULL,
+  `c_agent` varchar(50) DEFAULT 'SYSTEM',
+  `c_payment_method` enum('CREDIT_CARD','UPI','INTERNET_BANKING') DEFAULT NULL,
+  `c_debitor_transaction_id` bigint DEFAULT NULL,
+  PRIMARY KEY (`c_id`),
+  KEY `c_user_id` (`c_user_id`),
+  CONSTRAINT `tbl_transaction_ibfk_1` FOREIGN KEY (`c_user_id`) REFERENCES `tbl_user` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+
+CREATE TABLE `tbl_user` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `c_name` varchar(100) NOT NULL,
+  `c_age` int DEFAULT NULL,
+  `c_pn_country_code` varchar(6) NOT NULL,
+  `c_phone_number` varchar(100) NOT NULL,
+  `c_email` varchar(100) NOT NULL,
+  `c_create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `c_cpdate_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `c_comments` varchar(200) DEFAULT NULL,
+  `c_agent` varchar(50) DEFAULT 'SYSTEM',
+  `c_status` enum('ACTIVE','IN_ACTIVE','SUSPENDED','BLACK_LISTED') NOT NULL,
+  `c_password` text,
+  `c_role` enum('INTERNAL','EXTERNAL','ADMIN') DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `c_email` (`c_email`),
+  KEY `idx_index_user_p` (`c_pn_country_code`,`c_phone_number`),
+  KEY `idx_index_user_e` (`c_email`)
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+
+CREATE TABLE `tbl_wallet` (
+  `c_id` bigint NOT NULL AUTO_INCREMENT,
+  `c_user_id` bigint DEFAULT NULL,
+  `c_outstanding_balance` decimal(18,2) DEFAULT '0.00',
+  `c_uncleared_amount` decimal(18,2) DEFAULT '0.00',
+  `c_create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `c_update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `c_comments` varchar(200) DEFAULT NULL,
+  PRIMARY KEY (`c_id`),
+  KEY `tbl_wallet_ibfk_1` (`c_user_id`),
+  CONSTRAINT `tbl_wallet_ibfk_1` FOREIGN KEY (`c_user_id`) REFERENCES `tbl_user` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
